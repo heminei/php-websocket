@@ -9,9 +9,9 @@ $socket->setEnableLogging(true);
 
 $socket->on("receive", function($client, $data) use($socket) {
 	foreach ($socket->getClientsByPath($client->path) as $item) {
-		if ($item->id != $client->id) {
-			$socket->sendData($item, $data);
-		}
+//		if ($item->id != $client->id) {
+		$socket->sendData($item, $data);
+//		}
 	}
 });
 

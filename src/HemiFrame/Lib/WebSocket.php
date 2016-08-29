@@ -5,6 +5,7 @@ namespace HemiFrame\Lib;
 /**
  * @author Heminei
  * @link https://github.com/heminei/php-websocket
+ * @version 1.2
  */
 class WebSocket {
 
@@ -211,7 +212,7 @@ class WebSocket {
 	 * @return bool
 	 */
 	public function listen($backlog = 0) {
-		$result = socket_listen($this->socket, $backlog);
+		$result = @socket_listen($this->socket, $backlog);
 		if ($result === false) {
 			$this->onError($this->socket);
 		}
@@ -228,7 +229,7 @@ class WebSocket {
 	 * @return int
 	 */
 	public function select(&$read, &$write, &$except, $backlog, $tv_usec = 0) {
-		$result = socket_select($read, $write, $except, $backlog, $tv_usec);
+		$result = @socket_select($read, $write, $except, $backlog, $tv_usec);
 		if ($result === false) {
 			$this->onError($this->socket);
 		}
@@ -283,12 +284,12 @@ class WebSocket {
 	 */
 	public function read($socket) {
 		$buf = "";
-		while ($out = socket_read($socket, $this->bufferSize)) {
+		while (false !== ($out = @socket_read($socket, $this->bufferSize))) {
 			$buf .= $out;
-			if (strpos($out, "\r\n\r\n") !== false) {
-				break;
-			}
+			socket_set_nonblock($socket);
 		}
+		socket_set_block($socket);
+
 		return $buf;
 	}
 
@@ -432,7 +433,7 @@ class WebSocket {
 			}
 
 			foreach ($read as $changedSocket) {
-				$buf = $this->recv($changedSocket);
+				$buf = $this->read($changedSocket);
 				$client = $this->getClientBySocket($changedSocket);
 				$data = $this->hybi10Decode($client, $buf);
 
@@ -635,7 +636,7 @@ class WebSocket {
 	 */
 	private function createClient($socket) {
 		$ip = null;
-		if (socket_getpeername($socket, $ip) === false) {
+		if (@socket_getpeername($socket, $ip) === false) {
 			$this->onError($this->socket);
 		}
 
