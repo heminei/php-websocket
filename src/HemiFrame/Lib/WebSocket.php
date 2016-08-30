@@ -284,7 +284,11 @@ class WebSocket {
 	 */
 	public function read($socket) {
 		$buf = "";
-		while (false !== ($out = @socket_read($socket, $this->bufferSize))) {
+		while (true) {
+			$out = @socket_read($socket, $this->bufferSize);
+			if ($out === "" || $out === false) {
+				break;
+			}
 			$buf .= $out;
 			socket_set_nonblock($socket);
 		}
@@ -435,9 +439,17 @@ class WebSocket {
 			foreach ($read as $changedSocket) {
 				$buf = $this->read($changedSocket);
 				$client = $this->getClientBySocket($changedSocket);
+
+				if (empty($buf)) {
+					$this->log("Can't read data", $client);
+					$this->disconnectClient($client, self::STATUS_CLOSE_PROTOCOL_ERROR);
+					continue;
+				}
+
 				$data = $this->hybi10Decode($client, $buf);
 
 				if ($data['payload'] === false) {
+					$this->log("Can't decode data", $client);
 					$this->disconnectClient($client, self::STATUS_CLOSE_PROTOCOL_ERROR);
 					continue;
 				}
@@ -481,7 +493,7 @@ class WebSocket {
 			}
 
 //			var_dump(count($this->clients));
-//			var_dump("while loop");
+//			var_dump("loop");
 //			usleep(50000);
 //			sleep(1);
 		}
@@ -585,7 +597,7 @@ class WebSocket {
 			}
 		}
 
-		$this->write($client->socket, $this->hybi10Encode($client, $payload . $reason, "close"));
+		$this->write($client->socket, $this->hybi10Encode($client, $payload . $reason, "close", true));
 		$this->close($client->socket);
 		$this->log("disconnect: Code: $statusCode => $reason", $client);
 		$this->trigger("disconnect", [
@@ -863,6 +875,7 @@ class WebSocket {
 
 		// close connection if unmasked frame is received:
 		if ($isMasked === false) {
+			echo "aaaaaaaa";
 			$this->disconnectClient($client, 1002);
 		}
 
