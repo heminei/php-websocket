@@ -54,7 +54,7 @@ class WebSocket {
 	}
 
 	/**
-	 *
+	 * Get connected clients, filtered by path
 	 * @return array
 	 */
 	public function getClientsByPath($path = "/") {
@@ -68,7 +68,7 @@ class WebSocket {
 	}
 
 	/**
-	 *
+	 * Return allowed host
 	 * @return array
 	 */
 	public function getAllowedOrigins() {
@@ -298,7 +298,8 @@ class WebSocket {
 	}
 
 	/**
-	 * socket_last_error
+	 * Get last socket error code
+	 * Alias of socket_last_error
 	 * @return int
 	 */
 	public function getLastErrorCode() {
@@ -306,7 +307,7 @@ class WebSocket {
 	}
 
 	/**
-	 * socket_strerror
+	 * Get last websocket error message
 	 * @return string
 	 */
 	public function getLastErrorMessage() {
@@ -314,6 +315,12 @@ class WebSocket {
 		return socket_strerror($errorCode);
 	}
 
+	/**
+	 * Connect to websocket server. Send and validate handshake request.
+	 * @param string $path Send custom path to server
+	 * @param string $origin Send custom origin host to server
+	 * @return mixed Return client object when is successfully connected to server or FALSE when is not.
+	 */
 	public function connect($path = "/", $origin = null) {
 		$this->type = "client";
 		$this->create();
@@ -366,7 +373,11 @@ class WebSocket {
 	}
 
 	/**
-	 * Run WebSocket server
+	 * Run WebSocket server.
+	 * Create main socket.
+	 * Bind address and port.
+	 * Listens for a connection on a socket.
+	 * Call main processing loop
 	 */
 	public function startServer() {
 		$this->create();
@@ -386,6 +397,9 @@ class WebSocket {
 		$this->close($this->socket);
 	}
 
+	/**
+	 * Main processing loop. Check for new clients, incomming data, diconnected clients
+	 */
 	public function loop() {
 		while (is_resource($this->socket)) {
 			if ($this->type == "server") {
@@ -501,8 +515,8 @@ class WebSocket {
 
 	/**
 	 * Trigger event
-	 * @param string $name
-	 * @param array $arguments
+	 * @param string $name Event name
+	 * @param array $arguments Arguments for sending
 	 */
 	public function trigger($name, $arguments) {
 		foreach ($this->events as $key => $event) {
@@ -516,9 +530,9 @@ class WebSocket {
 	}
 
 	/**
-	 * Subscribe on event
-	 * @param string $name
-	 * @param function $function
+	 * Subscribe for event.
+	 * @param string $name Event name
+	 * @param function $function Callback function
 	 */
 	public function on($name, $function) {
 		$this->events[] = [
@@ -530,8 +544,8 @@ class WebSocket {
 
 	/**
 	 * Subscribe on event. Call only first time
-	 * @param string $name
-	 * @param function $function
+	 * @param string $name Event name
+	 * @param function $function Callback function
 	 */
 	public function one($name, $function) {
 		$this->events[] = [
@@ -558,8 +572,10 @@ class WebSocket {
 	}
 
 	/**
-	 * Disconnect client
+	 * Disconnect client. You can send custom status code and reason
 	 * @param object $client
+	 * @param int $statusCode
+	 * @param string $reason
 	 * @return self
 	 */
 	public function disconnectClient($client, $statusCode = self::STATUS_CLOSE_NORMAL, $reason = null) {

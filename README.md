@@ -72,8 +72,16 @@ $socket->on("error", function($socket, $client, $phpError, $errorMessage, $error
 ```php
 $socket->getSocket();
 
+/**
+* Get connected clients
+* @return array
+*/
 $socket->getClients();
 
+/**
+* Get connected clients, filtered by path
+* @return array
+*/
 $socket->getClientsByPath($path = "/");
 
 $socket->getAllowedOrigins();
@@ -114,12 +122,34 @@ $socket->recv($socket);
 
 $socket->read($socket);
 
+/**
+* Get last socket error code
+* Alias of socket_last_error
+* @return int
+*/
 $socket->getLastErrorCode();
 
+/**
+* Get last socket error message
+* @return string
+*/
 $socket->getLastErrorMessage();
 
+/**
+* Connect to websocket server. Send and validate handshake request.
+* @param string $path Send custom path to server
+* @param string $origin Send custom origin host to server
+* @return mixed Return client object when is successfully connected to server or FALSE when is not.
+*/
 $socket->connect($path = "/", $origin = null);
 
+/**
+* Run WebSocket server.
+* Create main socket.
+* Bind address and port.
+* Listens for a connection on a socket.
+* Call main processing loop
+*/
 $socket->startServer();
 
 /**
@@ -127,15 +157,45 @@ $socket->startServer();
 */
 $socket->stopServer();
 
+/**
+* Main processing loop. Check for new clients, incomming data, diconnected clients
+*/
 $socket->loop();
 
+/**
+* Trigger event
+* @param string $name Event name
+* @param array $arguments Arguments for sending
+*/
 $socket->trigger($name, $arguments);
 
+/**
+* Subscribe for event.
+* @param string $name Event name
+* @param function $function Callback function
+*/
 $socket->on($name, $function);
 
+/**
+* Subscribe on event. Call only first time
+* @param string $name Event name
+* @param function $function Callback function
+*/
 $socket->one($name, $function);
 
+/**
+* Send data to client
+* @param object $client
+* @param string $data
+*/
 $socket->sendData($client, $data);
 
+/**
+* Disconnect client. You can send custom status code and reason
+* @param object $client
+* @param int $statusCode
+* @param string $reason
+* @return self
+*/
 $socket->disconnectClient($client, $statusCode = self::STATUS_CLOSE_NORMAL, $reason = null);
 ```
