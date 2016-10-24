@@ -5,7 +5,7 @@ namespace HemiFrame\Lib;
 /**
  * @author Heminei
  * @link https://github.com/heminei/php-websocket
- * @version 1.2
+ * @version 1.2.1
  */
 class WebSocket {
 
@@ -334,15 +334,15 @@ class WebSocket {
 
 		$key = $this->generateWebSocketKey();
 		$header = "GET $path HTTP/1.1\r\n";
-		$header.= "Host: " . $this->address . ":" . $this->port . "\r\n";
-		$header.= "User-Agent: " . $this->userAgent . "\r\n";
-		$header.= "Upgrade: websocket\r\n";
-		$header.= "Connection: Upgrade\r\n";
-		$header.= "Sec-WebSocket-Key: " . $key . "\r\n";
+		$header .= "Host: " . $this->address . ":" . $this->port . "\r\n";
+		$header .= "User-Agent: " . $this->userAgent . "\r\n";
+		$header .= "Upgrade: websocket\r\n";
+		$header .= "Connection: Upgrade\r\n";
+		$header .= "Sec-WebSocket-Key: " . $key . "\r\n";
 		if (!empty($origin)) {
-			$header.= "Origin: " . $origin . "\r\n";
+			$header .= "Origin: " . $origin . "\r\n";
 		}
-		$header.= "Sec-WebSocket-Version: 13\r\n\r\n";
+		$header .= "Sec-WebSocket-Version: 13\r\n\r\n";
 		$this->write($client->socket, $header);
 
 		$buf = $this->read($client->socket);
@@ -615,20 +615,18 @@ class WebSocket {
 
 		$this->write($client->socket, $this->hybi10Encode($client, $payload . $reason, "close", true));
 		$this->close($client->socket);
-		$this->log("disconnect: Code: $statusCode => $reason", $client);
-		$this->trigger("disconnect", [
-			$client,
-			$statusCode,
-			$reason
-		]);
-
 		$this->clients = array_filter($this->clients, function($item) use($client) {
 			if ($item->socket == $client->socket) {
 				return false;
 			}
 			return true;
 		});
-
+		$this->log("disconnect: Code: $statusCode => $reason", $client);
+		$this->trigger("disconnect", [
+			$client,
+			$statusCode,
+			$reason
+		]);
 		return $this;
 	}
 
