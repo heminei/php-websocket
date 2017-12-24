@@ -1,0 +1,31 @@
+{
+    "name": "hemiframe/php-websocket",
+    "description": "PHP WebSocket server and client library",
+    "version": "1.5.0",
+    "keywords": [
+        "WebSockets",
+        "Server",
+        "Client",
+        "PHP",
+        "WebSocket"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Martin",
+            "email": "heminei@heminei.com",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/heminei/php-websocket/issues"
+    },
+    "autoload": {
+        "psr-4": {
+            "HemiFrame\\": "src/HemiFrame"
+        }
+    },
+    "require": {
+        "php": ">=7.1.0"
+    }
+}

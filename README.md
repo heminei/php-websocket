@@ -1,4 +1,4 @@
-# php-websocket - Simple and Powerfull PHP Server and Client
+# Simple and Powerfull PHP WebSocket Server and Client
 Simple and powerful PHP WebSocket implementation for PHP
 
 ## Supports
@@ -8,14 +8,28 @@ Simple and powerful PHP WebSocket implementation for PHP
 - sends status codes on close connections
 
 ## Requirements
-PHP 5.4 (or higher) is *highly* recommended for its performance improvements
+PHP 7.1
+
+## Installation
+
+Enter in composer.json
+```json
+{
+    "require": {
+        "hemiframe/php-websocket": ">=7.1.0"
+    }
+}
+```
+
+or run in console: `php composer.phar require hemiframe/php-websocket`
+
 
 ## Server example
 
 ```php
-require_once('src/HemiFrame/Lib/WebSocket.php');
+require_once('vendor/autoload.php');
 
-$socket = new \HemiFrame\Lib\WebSocket("localhost", 8080);
+$socket = new \HemiFrame\Lib\WebSocket\WebSocket("localhost", 8080);
 $socket->on("receive", function($client, $data) use($socket) {
 	foreach ($socket->getClients() as $item) {
 		if ($item->id != $client->id) {
@@ -29,9 +43,9 @@ $socket->startServer();
 ## Client example
 
 ```php
-require_once('src/HemiFrame/Lib/WebSocket.php');
+require_once('vendor/autoload.php');
 
-$socket = new \HemiFrame\Lib\WebSocket('localhost', 8080);
+$socket = new \HemiFrame\Lib\WebSocket\WebSocket('localhost', 8080);
 $socket->on("receive", function($client, $data) use($socket) {
 });
 $client = $socket->connect();
@@ -46,22 +60,22 @@ if ($client) {
 ### Events:
 
 ```php
-$socket->on("connect", function($client) {
+$socket->on("connect", function(\HemiFrame\Lib\WebSocket\Client $client) {
 });
 
-$socket->on("receive", function($client, $data) {
+$socket->on("receive", function(\HemiFrame\Lib\WebSocket\Client $client, $data) {
 });
 
-$socket->on("send", function($client, $data) {
+$socket->on("send", function(\HemiFrame\Lib\WebSocket\Client $client, $data) {
 });
 
-$socket->on("ping", function($client, $data) {
+$socket->on("ping", function(\HemiFrame\Lib\WebSocket\Client $client, $data) {
 });
 
-$socket->on("pong", function($client, $data) {
+$socket->on("pong", function(\HemiFrame\Lib\WebSocket\Client $client, $data) {
 });
 
-$socket->on("disconnect", function($client, $statusCode, $reason) {
+$socket->on("disconnect", function(\HemiFrame\Lib\WebSocket\Client $client, $statusCode, $reason) {
 });
 
 $socket->on("error", function($socket, $client, $phpError, $errorMessage, $errorCode) {
