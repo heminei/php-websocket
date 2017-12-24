@@ -8,7 +8,7 @@ Simple and powerful PHP WebSocket implementation for PHP
 - sends status codes on close connections
 
 ## Requirements
-PHP 7.1
+PHP >= 7.0
 
 ## Installation
 
