@@ -5,7 +5,7 @@ namespace HemiFrame\Lib\WebSocket;
 /**
  * @author Heminei
  * @link https://github.com/heminei/php-websocket
- * @version 1.5.0
+ * @version 1.5.1
  */
 class WebSocket {
 
@@ -634,8 +634,8 @@ class WebSocket {
             $reason
         ]);
 
-        $this->clients = array_filter($this->clients, function($item) use($client) {
-            if ($item->socket == $client->getSocket()) {
+        $this->clients = array_filter($this->clients, function(Client $item) use($client) {
+            if ($item->getSocket() == $client->getSocket()) {
                 return false;
             }
             return true;

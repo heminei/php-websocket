@@ -32,6 +32,7 @@ require_once('vendor/autoload.php');
 $socket = new \HemiFrame\Lib\WebSocket\WebSocket("localhost", 8080);
 $socket->on("receive", function($client, $data) use($socket) {
 	foreach ($socket->getClients() as $item) {
+        /* @var $item \HemiFrame\Lib\WebSocket\Client */
 		if ($item->id != $client->id) {
 			$socket->sendData($item, $data);
 		}
