@@ -328,7 +328,7 @@ class WebSocket {
         $result = @socket_connect($this->socket, $this->address, $this->port);
         if ($result === false) {
             $this->onError($this->socket);
-            return FALSE;
+            throw new \RuntimeException("Can't connect to " . $this->address . ":" . $this->port);
         }
 
         $client = $this->createClient($this->getSocket());
@@ -350,7 +350,7 @@ class WebSocket {
 
         if ($buf === false) {
             $this->disconnectClient($client, self::STATUS_CLOSE_PROTOCOL_ERROR);
-            return FALSE;
+            throw new \RuntimeException("Can't read socket");
         }
 
         $client->setHeaders($this->parseHeaders($buf));
