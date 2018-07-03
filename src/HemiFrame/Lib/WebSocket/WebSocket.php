@@ -320,9 +320,9 @@ class WebSocket {
      *
      * @param string $path
      * @param string $origin
-     * @return Client
+     * @return any
      */
-    public function connect(string $path = "/", string $origin = null): Client {
+    public function connect(string $path = "/", string $origin = null) {
         $this->type = "client";
         $this->create();
         $result = @socket_connect($this->socket, $this->address, $this->port);
