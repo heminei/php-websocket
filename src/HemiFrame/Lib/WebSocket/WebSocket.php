@@ -7,7 +7,8 @@ namespace HemiFrame\Lib\WebSocket;
  * @link https://github.com/heminei/php-websocket
  * @version 1.5.1
  */
-class WebSocket {
+class WebSocket
+{
 
     const STATUS_CLOSE_NORMAL = 1000;
     const STATUS_CLOSE_GOING_AWAY = 1001;
@@ -28,7 +29,8 @@ class WebSocket {
     private $userAgent = "php-client";
     private $enableLogging = false;
 
-    public function __construct(string $address = null, int $port = 8080) {
+    public function __construct(string $address = null, int $port = 8080)
+    {
         if (!function_exists("socket_create")) {
             throw new \Exception("Function socket_create not found");
         }
@@ -37,11 +39,13 @@ class WebSocket {
         $this->port = $port;
     }
 
-    public function __destruct() {
+    public function __destruct()
+    {
         $this->close($this->socket);
     }
 
-    public function getSocket() {
+    public function getSocket()
+    {
         return $this->socket;
     }
 
@@ -49,7 +53,8 @@ class WebSocket {
      * Get connected clients
      * @return array
      */
-    public function getClients(): array {
+    public function getClients() : array
+    {
         return $this->clients;
     }
 
@@ -57,8 +62,9 @@ class WebSocket {
      *
      * @return array
      */
-    public function getClientsByPath(string $path = "/"): array {
-        $clients = array_filter($this->getClients(), function(Client $client) use($path) {
+    public function getClientsByPath(string $path = "/") : array
+    {
+        $clients = array_filter($this->getClients(), function (Client $client) use ($path) {
             if ($client->getPath() == $path) {
                 return true;
             }
@@ -71,7 +77,8 @@ class WebSocket {
      *
      * @return array
      */
-    public function getAllowedOrigins(): array {
+    public function getAllowedOrigins() : array
+    {
         return $this->allowedOrigins;
     }
 
@@ -80,7 +87,8 @@ class WebSocket {
      * @param array $allowedOrigins
      * @return self
      */
-    public function setAllowedOrigins(array $allowedOrigins): self {
+    public function setAllowedOrigins(array $allowedOrigins) : self
+    {
         $this->allowedOrigins = $allowedOrigins;
 
         return $this;
@@ -90,7 +98,8 @@ class WebSocket {
      * Get max clients limit
      * @return int
      */
-    public function getMaxClients(): int {
+    public function getMaxClients() : int
+    {
         return $this->maxClients;
     }
 
@@ -99,7 +108,8 @@ class WebSocket {
      * @param int $maxClients
      * @return self
      */
-    public function setMaxClients(int $maxClients): self {
+    public function setMaxClients(int $maxClients) : self
+    {
         $this->maxClients = $maxClients;
 
         return $this;
@@ -109,7 +119,8 @@ class WebSocket {
      *
      * @return int
      */
-    public function getBufferSize(): int {
+    public function getBufferSize() : int
+    {
         return $this->bufferSize;
     }
 
@@ -118,7 +129,8 @@ class WebSocket {
      * @param int $bufferSize
      * @return self
      */
-    public function setBufferSize(int $bufferSize): self {
+    public function setBufferSize(int $bufferSize) : self
+    {
         $this->bufferSize = $bufferSize;
 
         return $this;
@@ -128,7 +140,8 @@ class WebSocket {
      *
      * @return string
      */
-    public function getUserAgent(): string {
+    public function getUserAgent() : string
+    {
         return $this->userAgent;
     }
 
@@ -137,7 +150,8 @@ class WebSocket {
      * @param string $userAgent
      * @return self
      */
-    public function setUserAgent(string $userAgent): self {
+    public function setUserAgent(string $userAgent) : self
+    {
         $this->userAgent = $userAgent;
 
         return $this;
@@ -148,7 +162,8 @@ class WebSocket {
      * @param boolean $enableLogging
      * @return self
      */
-    function setEnableLogging(bool $enableLogging): self {
+    function setEnableLogging(bool $enableLogging) : self
+    {
         $this->enableLogging = $enableLogging;
         return $this;
     }
@@ -157,7 +172,8 @@ class WebSocket {
      * socket_create
      * @return self
      */
-    public function create() {
+    public function create()
+    {
         $this->socket = @socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
         if ($this->socket === false) {
             $this->onError($this->socket);
@@ -171,7 +187,8 @@ class WebSocket {
      * @param resource $socket
      * @return self
      */
-    public function close($socket): self {
+    public function close($socket) : self
+    {
         if (is_resource($socket)) {
             socket_close($socket);
         }
@@ -186,7 +203,8 @@ class WebSocket {
      * @param mixed $optval
      * @return bool
      */
-    public function setOption($socket, int $level, int $optname, $optval): bool {
+    public function setOption($socket, int $level, int $optname, $optval) : bool
+    {
         $result = @socket_set_option($socket, $level, $optname, $optval);
         if ($result === false) {
             $this->onError($socket);
@@ -200,7 +218,8 @@ class WebSocket {
      * @param int $port
      * @return bool
      */
-    public function bind(string $address, int $port = 0): bool {
+    public function bind(string $address, int $port = 0) : bool
+    {
         $result = @socket_bind($this->socket, $address, $port);
         if ($result === false) {
             $this->onError($this->socket);
@@ -213,7 +232,8 @@ class WebSocket {
      * @param int $backlog
      * @return bool
      */
-    public function listen(int $backlog = 0): bool {
+    public function listen(int $backlog = 0) : bool
+    {
         $result = @socket_listen($this->socket, $backlog);
         if ($result === false) {
             $this->onError($this->socket);
@@ -230,7 +250,8 @@ class WebSocket {
      * @param int $tv_usec
      * @return int
      */
-    public function select(array &$read, array &$write, array &$except, int $backlog, int $tv_usec = 0) {
+    public function select(array &$read, array &$write, array &$except, int $backlog, int $tv_usec = 0)
+    {
         $result = @socket_select($read, $write, $except, $backlog, $tv_usec);
         if ($result === false) {
             $this->onError($this->socket);
@@ -242,7 +263,8 @@ class WebSocket {
      * socket_accept
      * @return resource
      */
-    public function accept() {
+    public function accept()
+    {
         $resource = @socket_accept($this->socket);
         if ($resource === false) {
             $this->onError($this->socket);
@@ -256,7 +278,8 @@ class WebSocket {
      * @param string $message
      * @return int
      */
-    public function write($socket, $message = null) {
+    public function write($socket, $message = null)
+    {
         $bytes = @socket_write($socket, $message, strlen($message));
         if ($bytes === false) {
             $this->onError($this->socket);
@@ -270,7 +293,8 @@ class WebSocket {
      * @param resource $socket
      * @return string
      */
-    public function recv($socket) {
+    public function recv($socket)
+    {
         $buf = null;
         while ($receivedBytes = @socket_recv($socket, $r_data, $this->bufferSize, MSG_DONTWAIT)) {
             $buf .= $r_data;
@@ -284,7 +308,8 @@ class WebSocket {
      * @param resource $socket
      * @return string
      */
-    public function read($socket) {
+    public function read($socket)
+    {
         $buf = "";
         while (true) {
             $out = @socket_read($socket, $this->bufferSize);
@@ -303,7 +328,8 @@ class WebSocket {
      * socket_last_error
      * @return int
      */
-    public function getLastErrorCode(): int {
+    public function getLastErrorCode() : int
+    {
         return socket_last_error();
     }
 
@@ -311,7 +337,8 @@ class WebSocket {
      * socket_strerror
      * @return string
      */
-    public function getLastErrorMessage() {
+    public function getLastErrorMessage()
+    {
         $errorCode = $this->getLastErrorCode();
         return socket_strerror($errorCode);
     }
@@ -320,15 +347,16 @@ class WebSocket {
      *
      * @param string $path
      * @param string $origin
-     * @return Client
+     * @return Client|bool
      */
-    public function connect(string $path = "/", string $origin = null): Client {
+    public function connect(string $path = "/", string $origin = null)
+    {
         $this->type = "client";
         $this->create();
         $result = @socket_connect($this->socket, $this->address, $this->port);
         if ($result === false) {
             $this->onError($this->socket);
-            return FALSE;
+            return false;
         }
 
         $client = $this->createClient($this->getSocket());
@@ -350,7 +378,7 @@ class WebSocket {
 
         if ($buf === false) {
             $this->disconnectClient($client, self::STATUS_CLOSE_PROTOCOL_ERROR);
-            return FALSE;
+            return false;
         }
 
         $client->setHeaders($this->parseHeaders($buf));
@@ -377,7 +405,8 @@ class WebSocket {
      * Run WebSocket server
      * @return self
      */
-    public function startServer(): self {
+    public function startServer() : self
+    {
         $this->create();
         $this->setOption($this->socket, SOL_SOCKET, SO_REUSEADDR, 1);
         $this->bind($this->address, $this->port);
@@ -391,7 +420,8 @@ class WebSocket {
      * Disconnect all clients and close main socket
      * @return self
      */
-    public function stopServer(): self {
+    public function stopServer() : self
+    {
         foreach ($this->clients as $client) {
             $this->disconnectClient($client, self::STATUS_CLOSE_GOING_AWAY);
         }
@@ -400,7 +430,8 @@ class WebSocket {
         return $this;
     }
 
-    public function loop() {
+    public function loop()
+    {
         while (is_resource($this->socket)) {
             if ($this->type == "server") {
                 $read = [$this->socket];
@@ -518,7 +549,8 @@ class WebSocket {
      * @param string $name
      * @param array $arguments
      */
-    public function trigger(string $name, array $arguments = []): self {
+    public function trigger(string $name, array $arguments = []) : self
+    {
         foreach ($this->events as $key => $event) {
             if ($event['name'] == $name && !empty($event['function'])) {
                 call_user_func_array($event['function'], $arguments);
@@ -536,7 +568,8 @@ class WebSocket {
      * @param string $name
      * @param \Closure $function
      */
-    public function on(string $name, \Closure $function) {
+    public function on(string $name, \Closure $function)
+    {
         if (empty($name)) {
             throw new \InvalidArgumentException("Invalid event name");
         }
@@ -555,7 +588,8 @@ class WebSocket {
      * @param string $name
      * @param function $function
      */
-    public function one(string $name, \Closure $function) {
+    public function one(string $name, \Closure $function)
+    {
         if (empty($name)) {
             throw new \InvalidArgumentException("Invalid event name");
         }
@@ -574,7 +608,8 @@ class WebSocket {
      * @param Client $client
      * @param string $data
      */
-    public function sendData(Client $client, $data) {
+    public function sendData(Client $client, $data)
+    {
         if ($this->checkClientExistBySocket($client->getSocket())) {
             $response = $this->hybi10Encode($client, $data, "text");
             $this->write($client->getSocket(), $response);
@@ -590,7 +625,8 @@ class WebSocket {
      * @param Client $client
      * @return self
      */
-    public function disconnectClient(Client $client, $statusCode = self::STATUS_CLOSE_NORMAL, $reason = null): self {
+    public function disconnectClient(Client $client, $statusCode = self::STATUS_CLOSE_NORMAL, $reason = null) : self
+    {
         $payload = pack('n', $statusCode);
 
         if (empty($reason)) {
@@ -634,7 +670,7 @@ class WebSocket {
             $reason
         ]);
 
-        $this->clients = array_filter($this->clients, function(Client $item) use($client) {
+        $this->clients = array_filter($this->clients, function (Client $item) use ($client) {
             if ($item->getSocket() == $client->getSocket()) {
                 return false;
             }
@@ -649,7 +685,8 @@ class WebSocket {
      * @param string $message
      * @param Client|null $client
      */
-    private function log($message, Client $client = null) {
+    private function log($message, Client $client = null)
+    {
         if ($this->enableLogging) {
             if (!empty($client)) {
                 $clientId = $client->getId() . " => ";
@@ -664,7 +701,8 @@ class WebSocket {
      *
      * @return string
      */
-    private function generateWebSocketKey() {
+    private function generateWebSocketKey()
+    {
         $simbols = "1234567890qwertyuiopasdfgjklzxcvbnm";
         return base64_encode(substr(str_shuffle($simbols), 0, 16));
     }
@@ -674,7 +712,8 @@ class WebSocket {
      * @param resource $socket
      * @return Client
      */
-    private function createClient($socket) {
+    private function createClient($socket)
+    {
         $ip = null;
         if (@socket_getpeername($socket, $ip) === false) {
             $this->onError($this->socket);
@@ -691,7 +730,8 @@ class WebSocket {
      * @param resource $socket
      * @return Client|null
      */
-    private function getClientBySocket($socket) {
+    private function getClientBySocket($socket)
+    {
         foreach ($this->clients as $client) {
             /* @var $client Client */
             if ($client->getSocket() == $socket) {
@@ -706,7 +746,8 @@ class WebSocket {
      * @param resource $socket
      * @return boolean
      */
-    private function checkClientExistBySocket($socket): bool {
+    private function checkClientExistBySocket($socket) : bool
+    {
         foreach ($this->clients as $client) {
             /* @var $client Client */
             if ($client->getSocket() == $socket) {
@@ -721,7 +762,8 @@ class WebSocket {
      * @param array $headers
      * @return boolean
      */
-    private function checkOrigin(array $headers): bool {
+    private function checkOrigin(array $headers) : bool
+    {
         if (empty($this->allowedOrigins)) {
             return true;
         }
@@ -741,7 +783,8 @@ class WebSocket {
      * @param string $headers
      * @return array
      */
-    private function parseHeaders(string $headers): array {
+    private function parseHeaders(string $headers) : array
+    {
         $headersArray = explode("\r\n", $headers);
         $array = [];
         if (count($headersArray) > 1) {
@@ -756,7 +799,8 @@ class WebSocket {
         return $array;
     }
 
-    private function sendHttpResponse(Client $client, $httpStatusCode = 400) {
+    private function sendHttpResponse(Client $client, $httpStatusCode = 400)
+    {
         $httpHeader = 'HTTP/1.1 ';
         switch ($httpStatusCode) {
             case 400:
@@ -783,7 +827,8 @@ class WebSocket {
         $this->write($client->getSocket(), $httpHeader);
     }
 
-    private function processClientHandshake(Client $client, $input) {
+    private function processClientHandshake(Client $client, $input)
+    {
         $matches = [];
         preg_match("/GET (.*) HTTP/i", $input, $matches);
         if (isset($matches[1])) {
@@ -815,7 +860,8 @@ class WebSocket {
         return true;
     }
 
-    private function onError($socket) {
+    private function onError($socket)
+    {
         $this->log("error: " . $this->getLastErrorMessage(), $this->getClientBySocket($socket));
         $this->trigger("error", [
             $socket,
@@ -827,7 +873,8 @@ class WebSocket {
 //		socket_clear_error($socket);
     }
 
-    private function hybi10Encode(Client $client, $payload, $type = 'text', $masked = false) {
+    private function hybi10Encode(Client $client, $payload, $type = 'text', $masked = false)
+    {
         $frameHead = array();
         $frame = '';
         $payloadLength = strlen($payload);
@@ -896,7 +943,8 @@ class WebSocket {
         return $frame;
     }
 
-    private function hybi10Decode(Client $client, $data) {
+    private function hybi10Decode(Client $client, $data)
+    {
         $payloadLength = '';
         $mask = '';
         $unmaskedPayload = '';
