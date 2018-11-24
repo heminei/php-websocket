@@ -1,6 +1,6 @@
 <?php
 
-require_once '../src/HemiFrame/Lib/WebSocket.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 
 $socket = new \HemiFrame\Lib\WebSocket("localhost", 8080);

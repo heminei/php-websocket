@@ -1,91 +1,89 @@
 <!DOCTYPE html>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
--->
 <html>
-	<head>
-		<title>Web Socket Demo</title>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<head>
+	<title>Web Socket Demo</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-		<script src="https://code.jquery.com/jquery-3.1.0.js"></script>
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-		<!-- Latest compiled and minified CSS -->
-	</head>
-	<body>
-		<div class="container">
-			<div class="row">
-				<div class="col-md-6">
-					<div class="well">
-						<div class="form-group">
-							<input class="form-control js-message" type="text" name="name" value="Test message" />
-						</div>
-						<div class="form-group">
-							<button class="btn btn-primary js-connect">Connect</button>
-							<button class="btn btn-primary js-disconnect">Disconnect</button>
-							<button class="btn btn-primary js-send">Send message</button>
-						</div>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+	<script src="https://code.jquery.com/jquery-3.1.0.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	<!-- Latest compiled and minified CSS -->
+</head>
+
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-6">
+				<div class="well">
+					<div class="form-group">
+						<input class="form-control js-message" type="text" name="name" value="Test message" />
 					</div>
-				</div>
-				<div class="col-md-6">
-					<div class="well">
-						<h3>Log:</h3>
-						<ul class="js-log"></ul>
+					<div class="form-group">
+						<button class="btn btn-primary js-connect">Connect</button>
+						<button class="btn btn-primary js-disconnect">Disconnect</button>
+						<button class="btn btn-primary js-send">Send message</button>
 					</div>
 				</div>
 			</div>
-
-
-			<script type="text/javascript">
-				$(function () {
-					var websocket;
-					$(".js-connect").on("click", function () {
-						connect();
-					});
-					$(".js-disconnect").on("click", function () {
-						websocket.close();
-					});
-					$(".js-send").on("click", function () {
-						websocket.send($(".js-message").val());
-					});
-
-					connect();
-
-					function connect() {
-						var wsUri = "ws://localhost:8080";
-						websocket = new WebSocket(wsUri);
-
-						//Connected to server
-						websocket.onopen = function (ev) {
-							$(".js-log").append($("<li></li>").html("Connected to server"));
-							console.log('Connected:', ev);
-						};
-
-						//Connection close
-						websocket.onclose = function (ev) {
-							$(".js-log").append($("<li></li>").html("Disconnected: Code: " + ev.code + "; Reason: " + ev.reason));
-							console.log('Disconnected: ', ev);
-						};
-
-						//Message Receved
-						websocket.onmessage = function (ev) {
-							$(".js-log").append($("<li></li>").html("Message: " + ev.data));
-							console.log('Message: ', ev);
-						};
-
-						//Error
-						websocket.onerror = function (ev) {
-							$(".js-log").append($("<li></li>").html("Error: " + ev));
-							console.log('Error ', ev);
-						};
-					}
-
-				});
-			</script>
+			<div class="col-md-6">
+				<div class="well">
+					<h3>Log:</h3>
+					<ul class="js-log"></ul>
+				</div>
+			</div>
 		</div>
-	</body>
+
+
+		<script type="text/javascript">
+			$(function () {
+				var websocket;
+				$(".js-connect").on("click", function () {
+					connect();
+				});
+				$(".js-disconnect").on("click", function () {
+					websocket.close();
+				});
+				$(".js-send").on("click", function () {
+					websocket.send($(".js-message").val());
+				});
+
+				connect();
+
+				function connect() {
+					var wsUri = "ws://localhost:8080";
+					websocket = new WebSocket(wsUri);
+
+					//Connected to server
+					websocket.onopen = function (ev) {
+						$(".js-log").append($("<li></li>").html("Connected to server"));
+						console.log('Connected:', ev);
+					};
+
+					//Connection close
+					websocket.onclose = function (ev) {
+						$(".js-log").append($("<li></li>").html("Disconnected: Code: " + ev.code + "; Reason: " + ev.reason));
+						console.log('Disconnected: ', ev);
+					};
+
+					//Message Receved
+					websocket.onmessage = function (ev) {
+						$(".js-log").append($("<li></li>").html("Message: " + ev.data));
+						console.log('Message: ', ev);
+					};
+
+					//Error
+					websocket.onerror = function (ev) {
+						$(".js-log").append($("<li></li>").html("Error: " + ev));
+						console.log('Error ', ev);
+					};
+				}
+
+			});
+		</script>
+	</div>
+</body>
+
 </html>

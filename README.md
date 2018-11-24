@@ -23,6 +23,14 @@ Enter in composer.json
 
 or run in console: `php composer.phar require hemiframe/php-websocket`
 
+## How to run demo?
+
+Open CMD or terminal and enter
+```
+php demo/server.php
+```
+
+After that you can open demo/index.html in your browser
 
 ## Server example
 
