@@ -60,15 +60,23 @@
 					websocket.onopen = function (ev) {
 						$(".js-log").append($("<li></li>").html("Connected to server"));
 						console.log('Connected:', ev);
+
+						$(".js-connect").attr("disabled", "disabled");
+						$(".js-send").removeAttr("disabled", "disabled");
+						$(".js-disconnect").removeAttr("disabled", "disabled");
 					};
 
 					//Connection close
 					websocket.onclose = function (ev) {
 						$(".js-log").append($("<li></li>").html("Disconnected: Code: " + ev.code + "; Reason: " + ev.reason));
 						console.log('Disconnected: ', ev);
+
+						$(".js-connect").removeAttr("disabled");
+						$(".js-send").attr("disabled", "disabled");
+						$(".js-disconnect").attr("disabled", "disabled");
 					};
 
-					//Message Receved
+					//Message Received
 					websocket.onmessage = function (ev) {
 						$(".js-log").append($("<li></li>").html("Message: " + ev.data));
 						console.log('Message: ', ev);

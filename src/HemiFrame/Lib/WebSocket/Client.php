@@ -2,6 +2,10 @@
 
 namespace HemiFrame\Lib\WebSocket;
 
+/**
+ * @author Heminei
+ * @link https://github.com/heminei/php-websocket
+ */
 class Client
 {
 

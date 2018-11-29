@@ -5,7 +5,6 @@ namespace HemiFrame\Lib\WebSocket;
 /**
  * @author Heminei
  * @link https://github.com/heminei/php-websocket
- * @version 1.5.1
  */
 class WebSocket
 {
@@ -25,7 +24,7 @@ class WebSocket
     private $events = [];
     private $allowedOrigins = [];
     private $maxClients = 1000;
-    private $bufferSize = 2048;
+    private $bufferSize = 8192;
     private $userAgent = "php-client";
     private $enableLogging = false;
 
@@ -320,7 +319,6 @@ class WebSocket
             socket_set_nonblock($socket);
         }
         socket_set_block($socket);
-
         return $buf;
     }
 
@@ -385,9 +383,9 @@ class WebSocket
 
         if (isset($client->getHeaders()['Sec-WebSocket-Accept'])) {
             $secWebSocketAccept = $client->getHeaders()['Sec-WebSocket-Accept'];
-            $expectedResonse = base64_encode(pack('H*', sha1($key . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11')));
+            $expectedResponse = base64_encode(pack('H*', sha1($key . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11')));
 
-            if ($secWebSocketAccept === $expectedResonse) {
+            if ($secWebSocketAccept === $expectedResponse) {
                 $client->setHandshake(true);
             }
         }
@@ -472,8 +470,8 @@ class WebSocket
                             $this->disconnectClient($client, self::STATUS_CLOSE_PROTOCOL_ERROR, "Invalid origin");
                         }
                     } else {
-                        $this->log("Failed process handchake", $client);
-                        $this->disconnectClient($client, self::STATUS_CLOSE_PROTOCOL_ERROR, "Failed process handchake");
+                        $this->log("Failed process handshake", $client);
+                        $this->disconnectClient($client, self::STATUS_CLOSE_PROTOCOL_ERROR, "Failed process handshake");
                     }
                 }
 
@@ -537,10 +535,6 @@ class WebSocket
                 }
             }
 
-//			var_dump(count($this->clients));
-//			var_dump("loop");
-//			usleep(50000);
-//			sleep(1);
         }
     }
 
@@ -608,10 +602,10 @@ class WebSocket
      * @param Client $client
      * @param string $data
      */
-    public function sendData(Client $client, $data)
+    public function sendData(Client $client, $data, $masked = true)
     {
         if ($this->checkClientExistBySocket($client->getSocket())) {
-            $response = $this->hybi10Encode($client, $data, "text");
+            $response = $this->hybi10Encode($client, $data, "text", $masked);
             $this->write($client->getSocket(), $response);
             $this->trigger("send", [
                 $client,
@@ -661,22 +655,31 @@ class WebSocket
             }
         }
 
-        $this->write($client->getSocket(), $this->hybi10Encode($client, $payload . $reason, "close", true));
-        $this->close($client->getSocket());
-        $this->log("disconnect: Code: $statusCode => $reason", $client);
-        $this->trigger("disconnect", [
-            $client,
-            $statusCode,
-            $reason
-        ]);
+        $masked = false;
+        if ($this->type == "client") {
+            $masked = true;
+        }
 
-        $this->clients = array_filter($this->clients, function (Client $item) use ($client) {
-            if ($item->getSocket() == $client->getSocket()) {
-                return false;
-            }
-            return true;
-        });
+        $this->write($client->getSocket(), $this->hybi10Encode($client, $payload . $reason, "close", $masked));
 
+        if ($this->type == "client") {
+            $buf = $this->read($client->getSocket());
+        } elseif ($this->type == "server") {
+            $this->close($client->getSocket());
+            $this->log("disconnect: Code: $statusCode => $reason", $client);
+            $this->trigger("disconnect", [
+                $client,
+                $statusCode,
+                $reason
+            ]);
+
+            $this->clients = array_filter($this->clients, function (Client $item) use ($client) {
+                if ($item->getSocket() == $client->getSocket()) {
+                    return false;
+                }
+                return true;
+            });
+        }
         return $this;
     }
 
@@ -703,8 +706,8 @@ class WebSocket
      */
     private function generateWebSocketKey()
     {
-        $simbols = "1234567890qwertyuiopasdfgjklzxcvbnm";
-        return base64_encode(substr(str_shuffle($simbols), 0, 16));
+        $symbols = "1234567890qwertyuiopasdfgjklzxcvbnm";
+        return base64_encode(substr(str_shuffle($symbols), 0, 16));
     }
 
     /**
@@ -843,10 +846,14 @@ class WebSocket
         $key = $client->getHeaders()['Sec-WebSocket-Key'];
         $secAccept = base64_encode(pack('H*', sha1($key . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11')));
         //hand shaking header
-        $upgrade = "HTTP/1.1 101 Web Socket Protocol Handshake\r\n" .
-            "Upgrade: websocket\r\n" .
-            "Connection: Upgrade\r\n" .
-            "Sec-WebSocket-Accept:$secAccept\r\n\r\n";
+        $upgrade = "HTTP/1.1 101 Web Socket Protocol Handshake\r\n";
+        $upgrade .= "Upgrade: websocket\r\n";
+        $upgrade .= "Connection: Upgrade\r\n";
+        $upgrade .= "Sec-WebSocket-Accept: $secAccept\r\n";
+        if (!empty($client->getHeaders()['Sec-WebSocket-Protocol'])) {
+            $upgrade .= "Sec-WebSocket-Protocol: " . $client->getHeaders()['Sec-WebSocket-Protocol'] . "\r\n";
+        }
+        $upgrade .= "\r\n";
 
         if (!$this->write($client->getSocket(), $upgrade)) {
             $this->log("Handshake can't be sent", $client);
@@ -959,6 +966,7 @@ class WebSocket
 
         // close connection if unmasked frame is received:
         if ($isMasked === false) {
+            $this->log("Unmasked frame is received", $client);
             $this->disconnectClient($client, 1002);
         }
 
