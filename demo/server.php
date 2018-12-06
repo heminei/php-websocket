@@ -15,6 +15,23 @@ $socket->on("receive", function (\HemiFrame\Lib\WebSocket\Client $client, $data)
 //		}
     }
 });
+$socket->on("connect", function (\HemiFrame\Lib\WebSocket\Client $client) {
+});
+
+$socket->on("receive", function (\HemiFrame\Lib\WebSocket\Client $client, $data) {
+});
+
+$socket->on("send", function (\HemiFrame\Lib\WebSocket\Client $client, $data) {
+});
+
+$socket->on("ping", function (\HemiFrame\Lib\WebSocket\Client $client, $data) {
+});
+
+$socket->on("pong", function (\HemiFrame\Lib\WebSocket\Client $client, $data) {
+});
+
+$socket->on("disconnect", function (\HemiFrame\Lib\WebSocket\Client $client, $statusCode, $reason) {
+});
 
 $socket->on("error", function ($socket, $client, $phpError, $errorMessage, $errorCode) {
     var_dump("Error: => " . implode(" => ", $phpError));

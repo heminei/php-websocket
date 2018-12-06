@@ -46,6 +46,14 @@ class Client
         return $this->headers;
     }
 
+    public function getHeader(string $name)
+    {
+        if (isset($this->headers[$name])) {
+            return $this->headers[$name];
+        }
+        return null;
+    }
+
     public function getPath()
     {
         return $this->path;
@@ -78,6 +86,12 @@ class Client
     public function setHeaders(array $headers) : self
     {
         $this->headers = $headers;
+        return $this;
+    }
+
+    public function setHeader(string $name, string $value) : self
+    {
+        $this->headers[$name] = $value;
         return $this;
     }
 

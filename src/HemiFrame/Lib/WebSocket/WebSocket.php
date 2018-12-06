@@ -347,7 +347,7 @@ class WebSocket
      * @param string $origin
      * @return Client|bool
      */
-    public function connect(string $path = "/", string $origin = null)
+    public function connect(string $path = "/", string $origin = null, array $headers = [])
     {
         $this->type = "client";
         $this->create();
@@ -365,10 +365,15 @@ class WebSocket
         $header .= "User-Agent: " . $this->userAgent . "\r\n";
         $header .= "Upgrade: websocket\r\n";
         $header .= "Connection: Upgrade\r\n";
-        $header .= "Sec-WebSocket-Key: " . $key . "\r\n";
         if (!empty($origin)) {
             $header .= "Origin: " . $origin . "\r\n";
         }
+        if (!empty($headers)) {
+            foreach ($headers as $key => $value) {
+                $header .= "$key: " . $value . "\r\n";
+            }
+        }
+        $header .= "Sec-WebSocket-Key: " . $key . "\r\n";
         $header .= "Sec-WebSocket-Version: 13\r\n\r\n";
         $this->write($client->getSocket(), $header);
 
@@ -384,7 +389,7 @@ class WebSocket
         if (isset($client->getHeaders()['Sec-WebSocket-Accept'])) {
             $secWebSocketAccept = $client->getHeaders()['Sec-WebSocket-Accept'];
             $expectedResponse = base64_encode(pack('H*', sha1($key . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11')));
-
+            
             if ($secWebSocketAccept === $expectedResponse) {
                 $client->setHandshake(true);
             }
@@ -393,6 +398,7 @@ class WebSocket
         if ($client->getHandshake()) {
             $this->clients[] = $client;
         } else {
+            $this->log("Invalid handshake", $client);
             $this->disconnectClient($client, self::STATUS_CLOSE_PROTOCOL_ERROR);
         }
 
@@ -460,7 +466,7 @@ class WebSocket
                     if ($this->processClientHandshake($client, $buf)) {
                         if ($this->checkOrigin($client->getHeaders())) {
                             $this->clients[] = $client;
-                            $this->log("connect", $client);
+                            $this->log("Client is connected", $client);
                             $this->trigger("connect", [
                                 $client
                             ]);
@@ -839,19 +845,20 @@ class WebSocket
         }
         $client->setHeaders($this->parseHeaders($input));
 
-        if (!isset($client->getHeaders()['Sec-WebSocket-Key'])) {
+        if (empty($client->getHeader('Sec-WebSocket-Key'))) {
+            $this->log("Sec-WebSocket-Key is empty", $client);
             return false;
         }
 
-        $key = $client->getHeaders()['Sec-WebSocket-Key'];
+        $key = $client->getHeader('Sec-WebSocket-Key');
         $secAccept = base64_encode(pack('H*', sha1($key . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11')));
         //hand shaking header
         $upgrade = "HTTP/1.1 101 Web Socket Protocol Handshake\r\n";
         $upgrade .= "Upgrade: websocket\r\n";
         $upgrade .= "Connection: Upgrade\r\n";
         $upgrade .= "Sec-WebSocket-Accept: $secAccept\r\n";
-        if (!empty($client->getHeaders()['Sec-WebSocket-Protocol'])) {
-            $upgrade .= "Sec-WebSocket-Protocol: " . $client->getHeaders()['Sec-WebSocket-Protocol'] . "\r\n";
+        if (!empty($client->getHeader('Sec-WebSocket-Protocol'))) {
+            $upgrade .= "Sec-WebSocket-Protocol: " . $client->getHeader('Sec-WebSocket-Protocol') . "\r\n";
         }
         $upgrade .= "\r\n";
 
