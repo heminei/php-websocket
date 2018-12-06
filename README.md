@@ -16,7 +16,7 @@ Enter in composer.json
 ```json
 {
     "require": {
-        "hemiframe/php-websocket": "~1.6"
+        "hemiframe/php-websocket": "~1.7"
     }
 }
 ```
