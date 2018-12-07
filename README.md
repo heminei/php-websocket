@@ -6,6 +6,7 @@ Simple and powerful PHP WebSocket implementation for PHP
 - check-origin
 - limit clients
 - sends status codes on close connections
+- sends custom headers
 
 ## Requirements
 PHP >= 7.0
