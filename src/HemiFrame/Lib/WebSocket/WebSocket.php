@@ -369,8 +369,8 @@ class WebSocket
             $header .= "Origin: " . $origin . "\r\n";
         }
         if (!empty($headers)) {
-            foreach ($headers as $key => $value) {
-                $header .= "$key: " . $value . "\r\n";
+            foreach ($headers as $headerKey => $value) {
+                $header .= "$headerKey: " . $value . "\r\n";
             }
         }
         $header .= "Sec-WebSocket-Key: " . $key . "\r\n";
